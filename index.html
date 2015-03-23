@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>フォトアルバム</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link rel="stylesheet" href="plugins/plugin-loader.css" />
+  <link rel="stylesheet" href="components/monaca-jquery-mobile/css/jquery.mobile.css" />
+  <link rel="stylesheet" href="components/monaca-jquery-mobile/css/jquery.mobile.theme.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="plugins/plugin-loader.js"></script>
+  <script src="components/monaca-jquery/jquery.js"></script>
+  <script src="components/monaca-jquery-mobile/jquery.mobile.js"></script>
+  <script src="js/custom.js"></script>
+</head>
+<style>
+ .ui-header .ui-.title {
+      margin: .6em 20px .8em;
+    }
+    .thumb {
+      width: 80px;
+      height: 80px;
+      border: 1px solid #000;
+    }
+    .closeup {
+      width: 330px;
+      height: 400px;
+      margin: 5px 5px 0 0;
+    }
+    .folder {
+      border-color: #000000;
+      border-width: 5px;
+      border-style: sold;
+      width: 120px;
+      height: 120px;
+      background-color: #333333;
+    　margin-left: 5px
+    　margin-right: 10px;
+    　margin-top: 5px;
+    }
+    .folder_thumb {
+      border-color: #000000;
+      border-width: 1px;
+      width: 100px;
+      height: 100px;
+    }
+    .foldername {
+      margin-top: 3px; 
+    }
+</style>
+<body>
+
+<div data-role="page" id="p-gallery">
+    <div data-role="header">
+    <h3>フォトアルバム</h3>
+    </div>
+</div>
+
+<!-- アプリ初期起動画面 --><!-- 初回起動時のみになっていない -->
+<div data-role="popup" id="popupCloseRight">
+    <div data-role="header">
+        <h3>機能説明</h3>
+        <a href="#upload" data-rel="close" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right"></a>
+    </div>
+        
+    <div class="ui-content">
+        <p>①右上の設定ボタンを押すと様々な設定ができます。</p>
+        <p>②各表示一覧によって設定内容が異なるので色々試してみてください。</p>
+        <p>③まずはギャラリーから画像をアップロードして始めてください。</p>
+        <br />
+        <p>※右上の×ボタンを押して説明画面を閉じてください。</p>
+    </div>
+</div>
+
+<div data-role="page" id="p-upload">
+    <div data-role="header">
+        <h3>フォトアルバム</h3>
+    </div>
+</div>
+
+<!-- アップロード確認ページ --><div data-role="popup" id="upload">
+    <div data-role="header">
+        <h3>アップロード確認</h3>
+    </div>
+    
+    <div class="ui-content">
+        <p>ギャラリーから画像をアップロードします。</p>
+    </div>
+    <a href="#p-upload2" data-rel="close" data-role="button" data-theme="a" data-icon="check" >開始</a>
+</div>
+
+<!-- アップロードページ-->
+<div data-role="page" id="p-upload2">
+    <div data-role="header">
+        <h3>画像アップロード</h3>
+    </div>
+    <div class="ui-content">
+    <p>1枚ずつしかアップロードできないのでファイルを選択したらもう一度選択をし、それを繰り返してアップロードしてください。</p>
+
+<input type="file" id="files" name="files[]" multiple />
+<script>
+   function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // Loop through the FileList and render image files as thumbnails.
+    for (var i = 0, f; f = files[i]; i++) {
+
+      // Only process image files.
+      if (!f.type.match('image.*')) {
+        continue;
+      }
+
+      var reader = new FileReader();
+
+      // Closure to capture the file information.
+      reader.onload = (function(theFile) {
+        return function(e) {
+          // Render thumbnail.
+          var span = document.createElement('span');
+          span.innerHTML = ['<a href="#p-Closeup" rel="external"><img class="thumb" src="', e.target.result,'"/><br>(', theFile.type || 'n/a', ') - ',
+                  theFile.lastModifiedDate.toLocaleDateString()].join('');
+          document.getElementById('list').insertBefore(span, null);
+          
+          var divPhoto = document.getElementById('img_PickUp');
+        divPhoto.innerHTML =  ['<img id="photo" class="closeup" src="', e.target.result,
+                            '" title="', escape(theFile.name),  '"/>'].join('');
+        //document.getElementById('p-garally').insertBefore(divPhoto, null);
+        };
+      })(f);
+
+      // Read in the image file as a data URL.
+      reader.readAsDataURL(f);
+    }
+  }
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+</script>
+    <a href="#p-gallery2" data-rel="close" data-role="button" data-theme="a" data-icon="grid" >フォトアルバム一覧へ</a>
+    </div>
+</div>
+
+<!-- 拡大表示ページ -->
+<div data-role="page" id="p-Closeup">
+    <div data-role="header">
+            <h3>フォトアルバム</h3>
+                
+            <a href="#p-gallery2" data-icon="back">戻る</a>
+            <a href="#popupMenu" data-rel="popup" data-icon="gear" class="ui-btn-right">設定</a>
+                
+        <div data-role="popup" id="popupMenu" data-theme="b"> 
+            <div data-role="listview" data-inset="true" style="min-width:210px;">
+                <li><a href="#pset.a">フォルダ移動</a></li>
+                <li><a href="#pset.b">画像ロック</a></li>
+                <li><a href="#pset.c">画像編集</a></li>
+                <li><a href="#pset.d">SNSに投稿</a></li>
+                <li><a href="#pset.e">壁紙に設定</a></li>
+                <li><a href="#pset.f">画像削除</a></li>
+                <li><a href="#pset.g">ロック画面に設定</a></li>
+            </div>
+        </div>
+    </div>
+    <div data-role="content" id="img_PickUp"></div>
+</div>
+
+<!-- ギャラリー一覧 --><!-- 日付載ってるのを直す -->
+<div data-role="page" id="p-gallery2">
+    <div data-role="header">
+        <h3>フォトアルバム</h3>
+            
+        <a href="#p-upload2" data-icon="plus">追加</a>
+        <a href="#PopupMenu" data-rel="popup" data-icon="gear" class="ui-btn-right">設定</a>
+            
+        <div data-role="popup" id="PopupMenu" data-theme="b"> 
+        <div data-role="listview" data-inset="true" style="min-width:210px;">
+            <li>表示切替
+                <ul data-role="listview">
+                    <li><a href="#p-gallery2">一覧表示</a></li>
+                    <li><a href="#p-set.a">日別表示</a></li>
+                    <li><a href="#p-set.a-2">フォルダ表示</a></li>
+                </ul>
+            </li>
+            <li><a href="#p-foldset">フォルダ作成</a></li>
+            <li><a href="#set.b">画像ロック</a></li>
+            <li><a href="#set.c">画像非表示</a></li>
+            <li><a href="#set.d">SNSに投稿</a></li>
+            <li><a href="#p-upload2">アップロード</a></li>
+            <li><a href="#set.g">画像削除</a></li>
+            <li><a href="#set.h">サーバーに保存</a></li>
+        </div>
+        </div>
+    </div>    
+<!-- 読み込んだ画像を表示する-->
+    <div class="ui-content">
+        <output id="list"></output>
+    </div>
+</div>
+
+<!-- 日別表示ページ --><!-- 未完 -->
+<div data-role="page" id="p-set.a">
+    <div data-role="header">
+        <h3>フォトアルバム</h3>
+            
+        <a href="#p-upload2" data-icon="plus">追加</a>
+        <a href="#popupMenu" data-rel="popup" data-icon="gear" class="ui-btn-right">設定</a>
+         
+        <div data-role="popup" id="popupMenu" data-theme="b"> 
+        <div data-role="listview" data-inset="true" style="min-width:210px;">
+            <li>表示切替
+                <ul data-role="listview">
+                    <li><a href="#p-gallery2">一覧表示</a></li>
+                    <li><a href="#p-set.a">日別表示</a></li>
+                    <li><a href="#p-set.a-2">フォルダ表示</a></li>
+                </ul>
+            </li>
+            <li><a href="#p-foldset">フォルダ作成</a></li>
+            <li><a href="#set.b">画像ロック</a></li>
+            <li><a href="#set.c">画像非表示</a></li>
+            <li><a href="#set.d">SNSに投稿</a></li>
+            <li><a href="#p-upload2">アップロード</a></li>
+            <li><a href="#set.g">画像削除</a></li>
+            <li><a href="#set.h">サーバーに保存</a></li>
+        </div>
+        </div>
+    </div>
+</div>
+
+<!-- フォルダ表示ページ初回 -->
+<div data-role="page" id="p-set.a-2">
+    <div data-role="header">
+        <h3>フォルダが存在しません</h3>
+    </div>
+        
+    <div data-role="content">
+        <p>フォルダを作成してください</p>
+        <a href="#p-foldset" data-role="button" data-theme="b" data-icon="plus">作成する</a>
+        <a href="#p-gallery2" data-role="button" data-rel="close" data-icon="back">作成しない</a>
+    </div>
+</div>
+
+<!-- フォルダ作成ページ -->
+<div data-role="popup" id="p-foldset">
+    <div data-role="header">
+        <h3>フォルダ作成</h3>
+        <a href="#p-gallery2" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right"></a>
+    </div>
+        
+    <div class="ui-content">
+        <p>フォルダを作成します。</p>
+    <label for="folder" class="ui-hidden-accessible">フォルダ名</label>
+    <input type="text" name="folder_name" id="folder_name" value="" placeholder="フォルダ名(※8文字以内)" data-theme="a">
+    <a href="#p-fold" id="kanryou" data-rel="close" data-role="button" data-theme="a" data-icon="check" >完了</a>
+    </div>
+</div>
+
+<!-- フォルダ一覧ページ2回目以降 -->
+<div data-role="page" id="p-fold">
+        <div data-role="header">
+            <h3>フォトアルバム</h3>
+            <a href="#popupmenu" data-rel="popup" data-icon="gear" class="ui-btn-right">設定</a>
+                
+            <div data-role="popup" id="popupmenu" data-theme="b"> 
+                <div data-role="listview" data-inset="true" style="min-width:210px;">
+                 <li>表示切替
+                    <ul data-role="listview">
+                        <li><a href="#p-gallery2">一覧表示</a></li>
+                        <li><a href="#p-set.a">日別表示</a></li>
+                        <li><a href="#p-set.a-2">フォルダ表示</a></li>
+                    </ul>
+                 </li>
+                 <li><a href="#p-foldset">フォルダ作成</a></li>
+                 <li><a href="#fset.a">フォルダ並び替え</a></li>
+                 <li><a href="#fset.c">フォルダ名変更</a></li>
+                 <li><a href="#fset.b">フォルダ削除</a></li>
+                 <li><a href="#fset.d">フォルダ非表示</a></li>
+                </div>
+            </div>
+        </div>  
+        
+    <div class="ui-content">
+    <!-- <div data-role="grid-a" id="g_folder">
+        <div id="folder" class="folder">
+            <div id="thumb.img", class="folder_thumb"></div>
+                <img src=""　/>
+        </div>  -->
+        <li data-role="list" data-inset="true" id="addList"></li>   
+    </div>
+</div>
+
+<!-- SNS投稿ページ -->
+<div data-role="page" id="set.d">
+    <div data-role="header">
+        <h3>フォトアルバム</h3>
+    </div>
+    <div data-role="content">
+        <a href="https://twitter.com/share" class="twitter-share-button" data-text="ツイートします。" data-lang="ja" data-size="large">Tweet</a>
+        <a href="index2.html" data-role="button">次の画面へ</a>
+    </div>
+</div>
+
+</body>
+</html>
